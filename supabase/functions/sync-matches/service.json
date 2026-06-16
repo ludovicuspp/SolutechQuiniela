@@ -1,0 +1,14 @@
+{
+  "lock": false,
+  "tasks": {
+    "db/*": {
+      "db_migrations": "supabase/migrations/**/*"
+    }
+  },
+  "functions": {
+    "sync-matches": {
+      "timeout": 60,
+      "memory_mb": 256
+    }
+  }
+}
