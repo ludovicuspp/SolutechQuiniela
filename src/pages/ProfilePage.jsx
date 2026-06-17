@@ -13,15 +13,10 @@ export default function ProfilePage() {
 
   const appVersion = import.meta.env.VITE_APP_VERSION || '1.0.0'
 
-  const [showChangeEmailModal, setShowChangeEmailModal] = useState(false)
-  const [newEmail, setNewEmail] = useState('')
-  const [updatingEmail, setUpdatingEmail] = useState(false)
-
   const [showEditProfileModal, setShowEditProfileModal] = useState(false)
   const [editProfileForm, setEditProfileForm] = useState({
     nombre: '',
     alias: '',
-    email: '',
     telefono: '',
     zona: '',
     vendedor: '',
@@ -29,30 +24,10 @@ export default function ProfilePage() {
   })
   const [savingProfile, setSavingProfile] = useState(false)
 
-  const handleChangeEmail = async () => {
-    if (!newEmail || !newEmail.includes('@')) {
-      toast.error('Ingresa un email válido')
-      return
-    }
-    setUpdatingEmail(true)
-    try {
-      const { error } = await supabase.auth.updateUser({ email: newEmail })
-      if (error) throw error
-      toast.success('Se ha enviado un enlace de confirmación. Revisa tu bandeja de entrada para completar el cambio')
-      setNewEmail('')
-      setShowChangeEmailModal(false)
-    } catch (err) {
-      toast.error(err.message || 'Error actualizando email')
-    } finally {
-      setUpdatingEmail(false)
-    }
-  }
-
   const openEditProfileModal = () => {
     setEditProfileForm({
       nombre: profile?.nombre || '',
       alias: profile?.alias || '',
-      email: user?.email || '',
       telefono: profile?.telefono || '',
       zona: profile?.zona || '',
       vendedor: profile?.vendedor || '',
@@ -63,23 +38,15 @@ export default function ProfilePage() {
 
   const closeEditProfileModal = () => {
     setShowEditProfileModal(false)
-    setEditProfileForm({ nombre: '', alias: '', email: '', telefono: '', zona: '', vendedor: '', empresa: '' })
+    setEditProfileForm({ nombre: '', alias: '', telefono: '', zona: '', vendedor: '', empresa: '' })
   }
 
   const handleSaveProfile = async () => {
     if (!editProfileForm.nombre.trim()) { toast.error('El nombre es requerido'); return }
     if (!editProfileForm.alias.trim()) { toast.error('El alias es requerido para el ranking'); return }
-    if (!editProfileForm.email || !editProfileForm.email.includes('@')) { toast.error('Ingresa un email válido'); return }
 
     setSavingProfile(true)
-    let emailChanged = false
     try {
-      if (editProfileForm.email !== user?.email) {
-        const { error: authError } = await supabase.auth.updateUser({ email: editProfileForm.email })
-        if (authError) throw authError
-        emailChanged = true
-        toast.success('Se ha enviado un enlace de confirmación al nuevo correo')
-      }
       const updatePayload = {
         nombre: editProfileForm.nombre,
         alias: editProfileForm.alias.trim(),
@@ -88,13 +55,13 @@ export default function ProfilePage() {
         vendedor: editProfileForm.vendedor,
         empresa: editProfileForm.empresa
       }
-      const { error: profileError } = await supabase.from('users').update(updatePayload).eq('id', profile?.id)
-      if (profileError) throw profileError
-      toast.success(emailChanged ? 'Perfil actualizado. Confirma tu nuevo email' : 'Perfil actualizado correctamente')
+      const { error } = await supabase.from('users').update(updatePayload).eq('id', profile?.id)
+      if (error) throw error
+      toast.success('Perfil actualizado correctamente')
       closeEditProfileModal()
       if (profile?.id) await loadProfile(profile.id)
     } catch (err) {
-      toast.error(err.message || 'Error actualizando perfil')
+      toast.error(err.message || 'Error actualizando el perfil')
     } finally {
       setSavingProfile(false)
     }
@@ -182,11 +149,6 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <button onClick={() => setShowChangeEmailModal(true)}
-        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-iron-100 dark:bg-iron-700 text-iron-700 dark:text-iron-200 font-semibold rounded-xl hover:bg-iron-200 dark:hover:bg-iron-600 transition-colors">
-        <Mail size={18} /> Cambiar Correo Electrónico
-      </button>
-
       <button onClick={signOut}
         className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-fifa-red/10 hover:bg-fifa-red/20 dark:bg-fifa-red/20 dark:hover:bg-fifa-red/30 text-fifa-red font-semibold rounded-xl transition-colors">
         <LogOut size={18} /> Cerrar Sesión
@@ -215,11 +177,14 @@ export default function ProfilePage() {
                 <p className="text-xs text-iron-500 mt-1">Este nombre es visible en el ranking público</p>
               </div>
               <div>
-                <label className="block text-xs font-medium text-iron-600 dark:text-iron-400 mb-1">Email *</label>
-                <input type="email" value={editProfileForm.email} onChange={e => setEditProfileForm(f => ({ ...f, email: e.target.value }))}
-                  placeholder="ejemplo@mail.com"
-                  className="w-full px-3 py-2.5 bg-iron-50 dark:bg-iron-700/50 rounded-xl border border-iron-200 dark:border-iron-600 text-iron-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/40" />
-                <p className="text-xs text-iron-500 mt-1">Se enviará un enlace de confirmación si cambias el correo</p>
+                <label className="block text-xs font-medium text-iron-500 dark:text-iron-400 mb-1">Correo electrónico</label>
+                <input
+                  type="email"
+                  value={user?.email || ''}
+                  disabled
+                  className="w-full px-3 py-2.5 bg-iron-100 dark:bg-iron-700/30 rounded-xl border border-iron-200 dark:border-iron-600 text-iron-400 dark:text-iron-500 text-sm cursor-not-allowed opacity-60"
+                />
+                <p className="text-xs text-iron-400 dark:text-iron-500 mt-1">El correo no se puede modificar</p>
               </div>
               <div>
                 <label className="block text-xs font-medium text-iron-600 dark:text-iron-400 mb-1">Teléfono</label>
@@ -248,33 +213,6 @@ export default function ProfilePage() {
               <button onClick={handleSaveProfile} disabled={savingProfile}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50">
                 {savingProfile ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Guardando...</> : 'Guardar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showChangeEmailModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-iron-800 rounded-2xl w-full max-w-sm shadow-2xl">
-            <div className="flex items-center justify-between p-4 border-b border-iron-200 dark:border-iron-700">
-              <h3 className="text-lg font-bold text-iron-900 dark:text-white">Cambiar Correo Electrónico</h3>
-              <button onClick={() => setShowChangeEmailModal(false)} className="p-1 text-iron-400 hover:text-iron-600 dark:hover:text-iron-200"><X size={20} /></button>
-            </div>
-            <div className="p-4 space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-iron-600 dark:text-iron-400 mb-2">Nuevo Correo</label>
-                <input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="nuevo@email.com"
-                  className="w-full px-3 py-2.5 bg-iron-50 dark:bg-iron-700/50 rounded-xl border border-iron-200 dark:border-iron-600 text-iron-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/40" />
-              </div>
-              <p className="text-xs text-iron-500">Se te enviará un enlace de confirmación al nuevo correo</p>
-            </div>
-            <div className="flex gap-3 p-4 border-t border-iron-200 dark:border-iron-700">
-              <button onClick={() => setShowChangeEmailModal(false)}
-                className="flex-1 px-4 py-2.5 bg-iron-100 dark:bg-iron-700 text-iron-700 dark:text-iron-200 font-semibold rounded-xl hover:bg-iron-200 dark:hover:bg-iron-600 transition-colors">Cancelar</button>
-              <button onClick={handleChangeEmail} disabled={updatingEmail}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50">
-                {updatingEmail ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Actualizando...</> : 'Actualizar'}
               </button>
             </div>
           </div>

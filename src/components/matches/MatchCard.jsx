@@ -251,8 +251,8 @@ export default function MatchCard({ match, compact = false, isReadOnly = false, 
 
       {/* ── FOOTER: fecha + (botón solo si no es readonly) ── */}
       {!compact && (
-        <div className="mt-3 pt-3 border-t border-iron-200 dark:border-iron-700 flex items-center justify-between gap-2">
-          <div className="flex flex-col gap-0.5 text-xs text-iron-500 dark:text-iron-400 min-w-0">
+        <div className={`mt-3 pt-3 border-t border-iron-200 dark:border-iron-700 flex items-center ${isReadOnly ? 'justify-center' : 'justify-between'} gap-2`}>
+          <div className={`flex flex-col gap-0.5 text-xs text-iron-500 dark:text-iron-400 min-w-0 ${isReadOnly ? 'items-center text-center' : ''}`}>
             <span className="flex items-center gap-1">
               <Clock size={11} />
               {match.estado === 'programado'
@@ -267,35 +267,36 @@ export default function MatchCard({ match, compact = false, isReadOnly = false, 
             )}
           </div>
 
-          {/* Botones solo si NO es vista de solo lectura */}
-          {!isReadOnly && hasBetted ? (
-            <button
-              onClick={handleBlockedClick}
-              className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl shrink-0 bg-iron-300 dark:bg-iron-600 text-iron-500 dark:text-iron-300 cursor-not-allowed opacity-70"
-            >
-              <Lock size={13} />
-              Jugado
-            </button>
-          ) : btnEstado ? (
-            <button
-              disabled
-              className={`flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl shrink-0 ${btnEstado.style}`}
-            >
-              <Lock size={13} />
-              {btnEstado.label}
-            </button>
-          ) : (
-            <button
-              onClick={() => setExpanded(e => !e)}
-              className={`flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl transition-all shrink-0 ${
-                expanded
-                  ? 'bg-iron-100 dark:bg-iron-700 text-iron-600 dark:text-iron-300'
-                  : 'bg-gradient-to-r from-fifa-red to-fifa-orange text-white shadow-lg shadow-fifa-red/30 hover:opacity-90'
-              }`}
-            >
-              <ChevronDown size={13} className={`transition-transform ${expanded ? 'rotate-180' : ''}`} />
-              {expanded ? 'Cerrar' : 'Pronosticar'}
-            </button>
+          {!isReadOnly && (
+            hasBetted ? (
+              <button
+                onClick={handleBlockedClick}
+                className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl shrink-0 bg-iron-300 dark:bg-iron-600 text-iron-500 dark:text-iron-300 cursor-not-allowed opacity-70"
+              >
+                <Lock size={13} />
+                Jugado
+              </button>
+            ) : btnEstado ? (
+              <button
+                disabled
+                className={`flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl shrink-0 ${btnEstado.style}`}
+              >
+                <Lock size={13} />
+                {btnEstado.label}
+              </button>
+            ) : (
+              <button
+                onClick={() => setExpanded(e => !e)}
+                className={`flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl transition-all shrink-0 ${
+                  expanded
+                    ? 'bg-iron-100 dark:bg-iron-700 text-iron-600 dark:text-iron-300'
+                    : 'bg-gradient-to-r from-fifa-red to-fifa-orange text-white shadow-lg shadow-fifa-red/30 hover:opacity-90'
+                }`}
+              >
+                <ChevronDown size={13} className={`transition-transform ${expanded ? 'rotate-180' : ''}`} />
+                {expanded ? 'Cerrar' : 'Pronosticar'}
+              </button>
+            )
           )}
         </div>
       )}
