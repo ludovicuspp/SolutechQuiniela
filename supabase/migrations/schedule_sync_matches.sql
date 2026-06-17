@@ -1,19 +1,21 @@
 -- pg_cron + pg_net para invocar sync-matches Edge Function cada 1 minuto.
--- Secrets: la URL de la función se storea en Vault (nombre: 'sync_matches_function_url').
--- La primera vez, ejecutar manualmente para configurar el schedule:
---   SELECT cron.schedule(...)  -- llamado abajo en modo 'drop'
+-- Secrets: la URL de la función y service role key se almacenan en Vault.
 --
--- El secret 'sync_matches_function_url' se crea asi (una sola vez):
+-- Secrets requeridos (crear una sola vez en SQL Editor):
 --   SELECT vault.create_secret(
 --     'https://<PROJECT_REF>.supabase.co/functions/v1/sync-matches',
 --     'sync_matches_function_url'
+--   );
+--   SELECT vault.create_secret(
+--     '<SUPABASE_SERVICE_ROLE_KEY>',
+--     'supabase_service_role_key'
 --   );
 
 create extension if not exists pg_cron;
 create extension if not exists pg_net;
 
 -- Función wrapper que pg_cron invoca cada minuto.
--- Lee la URL del Vault y hace POST con Bearer token del service role.
+-- Lee URL y service key desde Vault (tabla vault.decrypted_secrets).
 create or replace function public.cron_sync_matches()
 returns void
 language plpgsql
@@ -21,18 +23,27 @@ security definer
 set search_path = pg_catalog
 as $$
 declare
-  func_url text;
+  func_url   text;
   service_key text;
-  headers jsonb;
+  headers    jsonb;
 begin
-  -- Obtener URL del Vault
-  func_url := (select vault.current_secret('sync_matches_function_url'));
+  -- Obtener URL del Vault (decrypted_secrets, no current_secret)
+  select decrypted_secret into func_url
+  from vault.decrypted_secrets
+  where name = 'sync_matches_function_url';
 
   -- Obtener service role key del Vault
-  service_key := (select vault.current_secret('supabase_service_role_key'));
+  select decrypted_secret into service_key
+  from vault.decrypted_secrets
+  where name = 'supabase_service_role_key';
 
   if func_url is null then
     raise warning 'cron_sync_matches: secret sync_matches_function_url no encontrado en Vault';
+    return;
+  end if;
+
+  if service_key is null then
+    raise warning 'cron_sync_matches: secret supabase_service_role_key no encontrado en Vault';
     return;
   end if;
 
@@ -53,24 +64,25 @@ exception when others then
 end;
 $$;
 
--- Dar permisos a authenticated para invocar la wrapper (no necesario para cron,
--- pero queda disponible por si se quiere probar manualmente)
+-- Dar permisos a postgres para invocar la wrapper
 grant execute on function public.cron_sync_matches() to postgres;
 grant execute on function public.cron_sync_matches() to authenticated;
 
--- Schedule: cada 1 minuto. Modo 'drop' para que sea idempotente.
--- Eliminar schedule anterior si existe (evita error "event already scheduled")
-perform cron.unschedule('sync-matches-every-minute');
+-- Programar: cada 1 minuto.
+-- Usamos cron.schedule() directamente (idempotente: si ya existe, lo reemplaza).
+-- Esto reemplaza el antiguo perform cron.unschedule(...) que era inválido a nivel SQL.
+do $$
+begin
+  -- Eliminar schedule anterior si existe (evita error "event already scheduled")
+  perform cron.unschedule('sync-matches-every-minute');
+end;
+$$;
 
-insert into cron.job (jobname, schedule, command, active, instanceid)
-values (
+select cron.schedule(
   'sync-matches-every-minute',
   '* * * * *',
-  $$ select public.cron_sync_matches() $$,
-  true,
-  (select oid from pg_database where datname = current_database())
-)
-on conflict (jobname) do update
-  set schedule = excluded.schedule,
-      command = excluded.command,
-      active = excluded.active;
+  $$ select public.cron_sync_matches() $$
+);
+
+-- Verificar que quedó programado:
+-- select * from cron.job where jobname = 'sync-matches-every-minute';

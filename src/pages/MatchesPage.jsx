@@ -58,13 +58,22 @@ export default function MatchesPage() {
   useEffect(() => { fetchMatches() }, [])
 
   // ✅ Filtrar matches según la fase seleccionada
+  // Los partidos cuya hora ya pasó y NO están finalizados ni en vivo se ocultan
+  // (defensa extra: el sync autoritativo debería marcarlos, pero por si persisten datos huérfanos).
+  const now = Date.now()
+  const esProximoVisible = (m) => {
+    if (m.estado === 'finalizado') return false
+    if (m.estado === 'en_juego') return true
+    return new Date(m.fecha_partido).getTime() > now
+  }
+
   const getMatches = () => {
     if (selectedFase === 'finalizados') {
       return allMatches.filter(m => m.estado === 'finalizado')
     } else if (selectedFase === 'todos') {
-      return allMatches.filter(m => m.estado !== 'finalizado')
+      return allMatches.filter(m => esProximoVisible(m))
     } else {
-      return allMatches.filter(m => m.fase === selectedFase && m.estado !== 'finalizado')
+      return allMatches.filter(m => m.fase === selectedFase && esProximoVisible(m))
     }
   }
 
