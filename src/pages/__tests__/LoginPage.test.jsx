@@ -3,13 +3,9 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 
-// 🛡️ Mock de Supabase: NO debe llegar a la red. signInWithPassword debe
-// ser una función espía que devolvemos en supabase.auth.
-// `vi.hoisted` garantiza que `mockSignIn` exista cuando se evalúa el factory
-// de vi.mock (Vitest levanta los `vi.mock` antes de los imports del archivo).
-const { mockSignIn, mockSignInWithPhone } = vi.hoisted(() => ({
+const { mockSignIn, mockSignInWithRif } = vi.hoisted(() => ({
   mockSignIn: vi.fn(),
-  mockSignInWithPhone: vi.fn(),
+  mockSignInWithRif: vi.fn(),
 }))
 
 vi.mock('../../lib/supabase.js', () => ({
@@ -20,10 +16,9 @@ vi.mock('../../lib/supabase.js', () => ({
   },
 }))
 
-// Mock del store de auth: devolvemos signInWithPhone controlable
 vi.mock('../../store/authStore.js', () => ({
   useAuthStore: () => ({
-    signInWithPhone: mockSignInWithPhone,
+    signInWithRif: mockSignInWithRif,
   }),
 }))
 
@@ -39,14 +34,14 @@ const renderLogin = () =>
 describe('<LoginPage /> - Renderizado y validación', () => {
   beforeEach(() => {
     mockSignIn.mockClear()
-    mockSignInWithPhone.mockClear()
+    mockSignInWithRif.mockClear()
   })
 
-  it('✅ Renderiza el input de Número de Teléfono', () => {
+  it('✅ Renderiza el input de Cédula de Identidad', () => {
     renderLogin()
-    const phoneInput = screen.getByLabelText(/Número de Teléfono/i)
-    expect(phoneInput).toBeInTheDocument()
-    expect(phoneInput).toHaveAttribute('type', 'tel')
+    const cedulaInput = screen.getByLabelText(/Cédula de Identidad/i)
+    expect(cedulaInput).toBeInTheDocument()
+    expect(cedulaInput).toHaveAttribute('type', 'tel')
   })
 
   it('✅ Renderiza el input de Contraseña', () => {
@@ -62,36 +57,33 @@ describe('<LoginPage /> - Renderizado y validación', () => {
       .toBeInTheDocument()
   })
 
-  it('❌ Botón de submit está deshabilitado si el teléfono y la contraseña están vacíos', () => {
+  it('❌ Botón de submit está deshabilitado si la cédula y la contraseña están vacíos', () => {
     renderLogin()
     const submitBtn = screen.getByRole('button', { name: /Iniciar Sesión/i })
     expect(submitBtn).toBeDisabled()
   })
 
-  it('❌ No llama a Supabase si el usuario hace submit con el teléfono vacío', async () => {
+  it('❌ No llama a Supabase si el usuario hace submit con la cédula vacía', async () => {
     const user = userEvent.setup()
     renderLogin()
 
-    // Llenar solo la contraseña, dejar el teléfono vacío
     const passwordInput = screen.getByLabelText(/Contraseña/i)
     await user.type(passwordInput, 'micontraseña')
 
     const submitBtn = screen.getByRole('button', { name: /Iniciar Sesión/i })
-    // El botón sigue disabled por `!phoneValido`
     expect(submitBtn).toBeDisabled()
 
-    // Forzar click por si el usuario lograra saltarse el disable
     await user.click(submitBtn).catch(() => {})
 
     expect(mockSignIn).not.toHaveBeenCalled()
-    expect(mockSignInWithPhone).not.toHaveBeenCalled()
+    expect(mockSignInWithRif).not.toHaveBeenCalled()
   })
 
-  it('❌ No llama a Supabase si se intenta submit con teléfono < 10 dígitos', async () => {
+  it('❌ No llama a Supabase si se intenta submit con cédula < 6 dígitos', async () => {
     const user = userEvent.setup()
     renderLogin()
 
-    await user.type(screen.getByLabelText(/Número de Teléfono/i), '412') // solo 3 dígitos
+    await user.type(screen.getByLabelText(/Cédula de Identidad/i), '12345') // 5 dígitos
     await user.type(screen.getByLabelText(/Contraseña/i), 'secreto123')
 
     const submitBtn = screen.getByRole('button', { name: /Iniciar Sesión/i })
@@ -100,15 +92,15 @@ describe('<LoginPage /> - Renderizado y validación', () => {
     await user.click(submitBtn).catch(() => {})
 
     expect(mockSignIn).not.toHaveBeenCalled()
-    expect(mockSignInWithPhone).not.toHaveBeenCalled()
+    expect(mockSignInWithRif).not.toHaveBeenCalled()
   })
 
-  it('✅ Llama a signInWithPhone cuando el formulario es válido', async () => {
-    mockSignInWithPhone.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null })
+  it('✅ Llama a signInWithRif cuando el formulario es válido', async () => {
+    mockSignInWithRif.mockResolvedValueOnce({ data: { user: { id: 'u1' } }, error: null })
     const user = userEvent.setup()
     renderLogin()
 
-    await user.type(screen.getByLabelText(/Número de Teléfono/i), '4121234567')
+    await user.type(screen.getByLabelText(/Cédula de Identidad/i), '12345678')
     await user.type(screen.getByLabelText(/Contraseña/i), 'secreto123')
 
     const submitBtn = screen.getByRole('button', { name: /Iniciar Sesión/i })
@@ -116,8 +108,7 @@ describe('<LoginPage /> - Renderizado y validación', () => {
 
     await user.click(submitBtn)
 
-    // El botón concatena +58 + dígitos → +584121234567
-    expect(mockSignInWithPhone).toHaveBeenCalledTimes(1)
-    expect(mockSignInWithPhone).toHaveBeenCalledWith('+584121234567', 'secreto123')
+    expect(mockSignInWithRif).toHaveBeenCalledTimes(1)
+    expect(mockSignInWithRif).toHaveBeenCalledWith('12345678', 'secreto123')
   })
 })

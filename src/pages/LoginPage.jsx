@@ -4,34 +4,33 @@ import { Eye, EyeOff, LogIn } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import toast from 'react-hot-toast'
 
-const COUNTRY_CODE = '+58'
-const MIN_PHONE_DIGITS = 10
+const MIN_CEDULA_DIGITS = 6
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { signInWithPhone } = useAuthStore()
+  const { signInWithRif } = useAuthStore()
 
-  const [phone, setPhone] = useState('')
+  const [cedula, setCedula] = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const buildPhone = () => `${COUNTRY_CODE}${phone.replace(/\D/g, '')}`
-  const phoneValido = phone.replace(/\D/g, '').length >= MIN_PHONE_DIGITS
+  const cedulaDigits = cedula.replace(/\D/g, '')
+  const cedulaValida = cedulaDigits.length >= MIN_CEDULA_DIGITS
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!phoneValido) {
-      toast.error('Ingresa un número válido (mínimo 10 dígitos)')
+    if (!cedulaValida) {
+      toast.error('Ingresá una cédula válida (mínimo 6 dígitos)')
       return
     }
     if (!password) {
-      toast.error('Ingresa tu contraseña')
+      toast.error('Ingresá tu contraseña')
       return
     }
     setLoading(true)
     try {
-      await signInWithPhone(buildPhone(), password)
+      await signInWithRif(cedulaDigits, password)
       toast.success('¡Bienvenido de vuelta!')
       navigate('/')
     } catch (err) {
@@ -46,14 +45,12 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-iron-900 via-primary-900 to-iron-900 flex items-center justify-center p-4">
-      {/* Fondo decorativo */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent-500/10 rounded-full blur-3xl" />
       </div>
 
       <div className="relative w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
           <img
             src="/utils/LOGO IRONFLEX PLAY BLANCO.png"
@@ -69,30 +66,30 @@ export default function LoginPage() {
               Iniciar Sesión
             </h2>
             <p className="text-sm text-iron-500 dark:text-iron-400 mb-6">
-              Ingresa con tu número de teléfono y contraseña
+              Ingresá con tu cédula de identidad y contraseña
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="phone-input" className="block text-sm font-medium text-iron-700 dark:text-iron-300 mb-1">
-                  Número de Teléfono
+                <label htmlFor="cedula-input" className="block text-sm font-medium text-iron-700 dark:text-iron-300 mb-1">
+                  Cédula de Identidad
                 </label>
                 <div className="flex gap-2">
                   <div className="flex items-center px-3 py-2.5 bg-iron-100 dark:bg-iron-700 rounded-xl border border-iron-200 dark:border-iron-600 text-iron-700 dark:text-iron-200 font-mono font-semibold text-sm shrink-0 select-none">
-                    {COUNTRY_CODE}
+                    V
                   </div>
                   <input
-                    id="phone-input"
+                    id="cedula-input"
                     type="tel"
-                    value={phone}
-                    onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 11))}
+                    value={cedula}
+                    onChange={e => setCedula(e.target.value.replace(/\D/g, '').slice(0, 9))}
                     className="input-field flex-1 font-mono"
-                    placeholder="4121234567"
-                    autoComplete="tel-national"
+                    placeholder="12345678"
+                    autoComplete="off"
                     required
                   />
                 </div>
-                <p className="text-xs text-iron-400 mt-1">Ej: 4121234567 (sin el 0 inicial)</p>
+                <p className="text-xs text-iron-400 mt-1">Ej: 12345678 (solo números)</p>
               </div>
 
               <div>
@@ -119,7 +116,7 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                disabled={loading || !phoneValido || !password}
+                disabled={loading || !cedulaValida || !password}
                 className="btn-primary w-full flex items-center justify-center gap-2"
               >
                 {loading ? (

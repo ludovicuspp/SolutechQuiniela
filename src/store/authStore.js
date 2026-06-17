@@ -163,24 +163,24 @@ export const useAuthStore = create((set, get) => ({
     return data
   },
 
-  signInWithPhone: async (phone, password) => {
+  signInWithRif: async (rif, password) => {
     const { data: rpcResult, error: rpcError } = await supabase
-      .rpc('get_email_by_phone', { p_telefono: phone })
+      .rpc('get_email_by_rif', { p_rif: rif })
 
     if (rpcError) {
-      console.error('[signInWithPhone] RPC error:', rpcError)
-      throw new Error('Error verificando el número. Intenta de nuevo.')
+      console.error('[signInWithRif] RPC error:', rpcError)
+      throw new Error('Error verificando la cédula. Intenta de nuevo.')
     }
 
     const email = Array.isArray(rpcResult) ? rpcResult[0] : rpcResult
 
     if (!email) {
-      throw new Error('No encontramos una cuenta asociada a este número. Regístrate primero.')
+      throw new Error('No encontramos una cuenta asociada a esa cédula. Regístrate primero.')
     }
 
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      console.error('[signInWithPhone] signIn error:', error, 'email usado:', email)
+      console.error('[signInWithRif] signIn error:', error, 'email usado:', email)
       throw error
     }
 
