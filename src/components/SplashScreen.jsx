@@ -42,7 +42,7 @@ export default function SplashScreen({ onDone, duration = 3000 }) {
 
       <img
         src="/utils/SOLUTECH-02.png"
-        alt="IronPlay"
+        alt="SolutechQuiniela"
         className="w-36 h-36 object-contain splash-icon"
       />
     </div>

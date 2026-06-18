@@ -55,7 +55,7 @@ export default function LoginPage() {
           <img
             src="/utils/SOLUTECH-02.png"
             alt="SolutechQuiniela"
-            className="h-14 object-contain mx-auto mb-4"
+            className="h-20 object-contain mx-auto mb-4"
           />
           <p className="text-iron-400 text-sm">Quiniela Interna · FIFA World Cup 2026</p>
         </div>

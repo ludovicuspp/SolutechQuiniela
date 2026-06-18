@@ -22,7 +22,7 @@ export default function ProtectedRoute({ children }) {
         `}</style>
         <img
           src="/utils/SOLUTECH-02.png"
-          alt="IronPlay"
+          alt="SolutechQuiniela"
           className="w-24 h-24 object-contain animate-heartbeat"
         />
       </div>
