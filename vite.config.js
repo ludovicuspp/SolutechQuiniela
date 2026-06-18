@@ -18,7 +18,7 @@ export default defineConfig({
         display: 'standalone',
         start_url: '/',
         icons: [
-          { src: '/favicon.svg', sizes: 'any', type: 'image/svg+xml' },
+          { src: '/utils/SOLUTECH-02.png', sizes: '512x512', type: 'image/png' },
         ],
       },
       workbox: {

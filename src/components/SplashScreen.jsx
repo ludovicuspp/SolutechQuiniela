@@ -41,7 +41,7 @@ export default function SplashScreen({ onDone, duration = 3000 }) {
       `}</style>
 
       <img
-        src="/utils/LOGO IRONFBET-04.png"
+        src="/utils/SOLUTECH-02.png"
         alt="IronPlay"
         className="w-36 h-36 object-contain splash-icon"
       />

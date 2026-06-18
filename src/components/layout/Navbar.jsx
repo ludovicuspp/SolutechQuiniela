@@ -45,7 +45,7 @@ export default function Navbar() {
 
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           <img
-            src="/utils/LOGO IRONFLEX PLAY BLANCO.png"
+            src="/utils/SOLUTECH-02.png"
             alt="IronPlay"
             className="h-10 object-contain invert dark:invert-0"
           />

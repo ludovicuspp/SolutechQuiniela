@@ -53,7 +53,7 @@ export default function LoginPage() {
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
           <img
-            src="/utils/LOGO IRONFLEX PLAY BLANCO.png"
+            src="/utils/SOLUTECH-02.png"
             alt="SolutechQuiniela"
             className="h-14 object-contain mx-auto mb-4"
           />
