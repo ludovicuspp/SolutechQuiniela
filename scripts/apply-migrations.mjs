@@ -45,6 +45,7 @@ const FILES = [
   'schedule_sync_matches.sql',
   'fix_place_bet_canonical.sql',
   'fix_admin_panel_functions.sql',
+  'fix_auto_resolve_trigger.sql',
 ]
 
 const PROJECT_REF = process.env.SUPABASE_PROJECT_REF || ''
