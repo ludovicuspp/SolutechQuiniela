@@ -1,11 +1,4 @@
-[
-  "$schema": "https://schema.supabase.com",
-  "id": "solutech-quiniela",
-  "name": "solutech-quiniela",
-  "version": "1.0.0",
-  "functions": {
-    "sync-matches": {
-      "verify_jwt": false
-    }
-  }
-]
+project_id = "solutech-quiniela"
+
+[functions.sync-matches]
+verify_jwt = false

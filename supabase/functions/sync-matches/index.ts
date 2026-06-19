@@ -108,17 +108,26 @@ Deno.serve(async (req: Request) => {
       console.warn("No se pudo obtener standings:", e);
     }
 
-    // 2. Fetch all fixtures
-    const fixRes = await fetchWithTimeout(
-      `${API_BASE}/fixtures?league=1&season=2026`,
-      { headers: { "x-apisports-key": apiKey } }
-    );
-    if (!fixRes.ok) {
-      throw new Error(`Football API error ${fixRes.status}`);
-    }
-    const fixData = await fixRes.json();
-    const fixtures: any[] = fixData.response || [];
+    // 2. Fetch all fixtures (handle pagination)
+    let page = 1;
+    let totalPages = 1;
+    const allFixtures: any[] = [];
 
+    while (page <= totalPages) {
+      const fixRes = await fetchWithTimeout(
+        `${API_BASE}/fixtures?league=1&season=2026&page=${page}`,
+        { headers: { "x-apisports-key": apiKey } }
+      );
+      if (!fixRes.ok) {
+        throw new Error(`Football API error ${fixRes.status} (page ${page})`);
+      }
+      const fixData = await fixRes.json();
+      allFixtures.push(...(fixData.response || []));
+      totalPages = fixData.paging?.total || 1;
+      page++;
+    }
+
+    const fixtures = allFixtures;
     if (fixtures.length === 0) {
       return Response.json({ count: 0, enJuego: 0, finalizados: 0 });
     }
