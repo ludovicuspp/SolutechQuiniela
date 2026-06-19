@@ -108,23 +108,33 @@ Deno.serve(async (req: Request) => {
       console.warn("No se pudo obtener standings:", e);
     }
 
-    // 2. Fetch all fixtures (handle pagination)
-    let page = 1;
-    let totalPages = 1;
-    const allFixtures: any[] = [];
+    // 2. Fetch all fixtures (handle pagination — free plan doesn't support ?page=)
+    const firstRes = await fetchWithTimeout(
+      `${API_BASE}/fixtures?league=1&season=2026`,
+      { headers: { "x-apisports-key": apiKey } }
+    );
+    if (!firstRes.ok) {
+      throw new Error(`Football API error ${firstRes.status}`);
+    }
+    const firstData = await firstRes.json();
+    const allFixtures: any[] = [...(firstData.response || [])];
+    const totalPages = firstData.paging?.total || 1;
 
-    while (page <= totalPages) {
-      const fixRes = await fetchWithTimeout(
-        `${API_BASE}/fixtures?league=1&season=2026&page=${page}`,
-        { headers: { "x-apisports-key": apiKey } }
-      );
-      if (!fixRes.ok) {
-        throw new Error(`Football API error ${fixRes.status} (page ${page})`);
+    // Try subsequent pages (may fail on free plan)
+    for (let p = 2; p <= totalPages; p++) {
+      try {
+        const pageRes = await fetchWithTimeout(
+          `${API_BASE}/fixtures?league=1&season=2026&page=${p}`,
+          { headers: { "x-apisports-key": apiKey } },
+          8000
+        );
+        if (pageRes.ok) {
+          const pageData = await pageRes.json();
+          allFixtures.push(...(pageData.response || []));
+        }
+      } catch {
+        break; // pagination not supported (free plan)
       }
-      const fixData = await fixRes.json();
-      allFixtures.push(...(fixData.response || []));
-      totalPages = fixData.paging?.total || 1;
-      page++;
     }
 
     const fixtures = allFixtures;
