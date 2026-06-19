@@ -287,7 +287,6 @@ export const useResolveBets = create((set, get) => ({
         .from('matches')
         .select('id, external_id, fase, equipo_local, equipo_visitante, goles_local, goles_visitante, estado, resultado_verificado, penales_local, penales_visitante')
         .eq('estado', 'finalizado')
-        .eq('resultado_verificado', false)
         .order('fecha_partido', { ascending: false })
       if (error) throw error
       set({ finishedMatches: data || [] })
@@ -300,14 +299,18 @@ export const useResolveBets = create((set, get) => ({
     }
   },
 
-  resolveMatchBets: async (matchId) => {
+  resolveMatchBets: async (matchId, penLocal, penVisitante) => {
     set({ isResolvingBets: true })
     try {
-      const { error } = await supabase.rpc('resolve_match_bets', { p_match_id: matchId })
+      const { data, error } = await supabase.rpc('admin_resolve_match', {
+        p_match_id: matchId,
+        p_pen_local: penLocal ?? null,
+        p_pen_visitante: penVisitante ?? null,
+      })
       if (error) throw error
-      console.log('[resolveMatchBets] Apuestas resueltas para match:', matchId)
+      console.log('[resolveMatchBets] Resultado:', data)
       await get().fetchFinishedMatches()
-      return { success: true }
+      return { success: true, data }
     } catch (err) {
       console.error('[resolveMatchBets] Error:', err.message)
       return { success: false, error: err.message }

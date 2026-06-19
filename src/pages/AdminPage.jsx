@@ -62,7 +62,8 @@ export default function AdminPage() {
     finishedMatches,
     isLoadingFinished,
     fetchFinishedMatches,
-    setMatchPenalties,
+    resolveMatchBets,
+    isResolvingBets,
   } = useResolveBets()
   const [penaltiesForm, setPenaltiesForm] = useState({})
 
@@ -538,13 +539,13 @@ setUserForm({ email: '', password: '', nombre: '', rif: '', telefono: '', zona: 
                 </div>
 
                 <div className="border-t border-iron-200 dark:border-iron-700 pt-4">
-                  <h3 className="text-sm font-bold text-iron-900 dark:text-white mb-3">Cargar Penales</h3>
+                  <h3 className="text-sm font-bold text-iron-900 dark:text-white mb-3">Resolver Pronósticos</h3>
                   {isLoadingFinished ? (
                     <div className="flex justify-center py-6">
                       <div className="w-5 h-5 border-2 border-primary-200 border-t-primary-500 rounded-full animate-spin" />
                     </div>
                   ) : finishedMatches.length === 0 ? (
-                    <p className="text-xs text-iron-500 py-4 text-center">No hay partidos finalizados pendientes de configurar</p>
+                    <p className="text-xs text-iron-500 py-4 text-center">No hay partidos finalizados. Sincroniza primero.</p>
                   ) : (
                     <div className="space-y-2 max-h-64 overflow-y-auto">
                       {finishedMatches.map(match => (
@@ -557,24 +558,28 @@ setUserForm({ email: '', password: '', nombre: '', rif: '', telefono: '', zona: 
                             <p className="text-xs text-iron-500">{match.fase} · {match.goles_local}–{match.goles_visitante}</p>
                           </div>
                           <div className="flex items-center gap-1">
-                            <input type="number" min="0" placeholder="LOCAL" value={penaltiesForm[match.id]?.penLocal ?? ''}
+                            <input type="number" min="0" placeholder="LOC" value={penaltiesForm[match.id]?.penLocal ?? ''}
                               onChange={e => setPenaltiesForm(f => ({ ...f, [match.id]: { ...f[match.id], penLocal: e.target.value } }))}
-                              className="w-12 px-1.5 py-1 text-xs bg-white dark:bg-iron-700 border border-iron-300 dark:border-iron-600 rounded text-center text-iron-900 dark:text-white" />
+                              className="w-11 px-1 py-1 text-xs bg-white dark:bg-iron-700 border border-iron-300 dark:border-iron-600 rounded text-center text-iron-900 dark:text-white" />
                             <span className="text-xs text-iron-400">–</span>
                             <input type="number" min="0" placeholder="VIS" value={penaltiesForm[match.id]?.penVisit ?? ''}
                               onChange={e => setPenaltiesForm(f => ({ ...f, [match.id]: { ...f[match.id], penVisit: e.target.value } }))}
-                              className="w-12 px-1.5 py-1 text-xs bg-white dark:bg-iron-700 border border-iron-300 dark:border-iron-600 rounded text-center text-iron-900 dark:text-white" />
+                              className="w-11 px-1 py-1 text-xs bg-white dark:bg-iron-700 border border-iron-300 dark:border-iron-600 rounded text-center text-iron-900 dark:text-white" />
                             <button
                               onClick={async () => {
                                 const penLocal = Number(penaltiesForm[match.id]?.penLocal)
                                 const penVisit = Number(penaltiesForm[match.id]?.penVisit)
-                                if (!penLocal && !penVisit) return
-                                const result = await setMatchPenalties(match.id, penLocal || 0, penVisit || 0)
-                                if (result.success) toast.success('Penales guardados')
-                                else toast.error(result.error || 'Error guardando penales')
+                                const result = await resolveMatchBets(match.id, penLocal || null, penVisit || null)
+                                if (result.success) {
+                                  const r = result.data
+                                  toast.success(`Resuelto: ${r.ganadas} ganadas, ${r.perdidas} perdidas${r.revertidas > 0 ? `, ${r.revertidas} revertidas` : ''}`)
+                                } else {
+                                  toast.error(result.error || 'Error resolviendo')
+                                }
                               }}
-                              className="px-2 py-1 text-xs bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg transition-colors">
-                              OK
+                              className="px-2 py-1 text-xs bg-gradient-to-r from-fifa-purple to-fifa-purple-dark hover:opacity-90 text-white font-semibold rounded-lg transition-all disabled:opacity-50"
+                              disabled={isResolvingBets}>
+                              {isResolvingBets ? <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Resolver'}
                             </button>
                           </div>
                         </div>
