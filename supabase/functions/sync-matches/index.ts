@@ -2,6 +2,12 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.106.1";
 
 const API_BASE = "https://v3.football.api-sports.io";
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info",
+};
+
 const STATUS_MAP: Record<string, string> = {
   TBD: "programado",
   NS: "programado",
@@ -64,18 +70,12 @@ async function fetchWithTimeout(
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      },
-    });
+    return new Response(null, { headers: CORS_HEADERS });
   }
 
   const apiKey = Deno.env.get("FOOTBALL_API_KEY");
   if (!apiKey) {
-    return Response.json({ error: "FOOTBALL_API_KEY no configurada" }, { status: 500 });
+    return Response.json({ error: "FOOTBALL_API_KEY no configurada" }, { status: 500, headers: CORS_HEADERS });
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -139,7 +139,7 @@ Deno.serve(async (req: Request) => {
 
     const fixtures = allFixtures;
     if (fixtures.length === 0) {
-      return Response.json({ count: 0, enJuego: 0, finalizados: 0 });
+      return Response.json({ count: 0, enJuego: 0, finalizados: 0 }, { headers: CORS_HEADERS });
     }
 
     // 3. Map fixtures
@@ -193,15 +193,10 @@ Deno.serve(async (req: Request) => {
 
     return Response.json(
       { count: mappedMatches.length, enJuego, finalizados },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
-      }
+      { headers: CORS_HEADERS }
     );
   } catch (err) {
     console.error("[sync-matches] Error:", err);
-    return Response.json({ error: String(err) }, { status: 500 });
+    return Response.json({ error: String(err) }, { status: 500, headers: CORS_HEADERS });
   }
 });

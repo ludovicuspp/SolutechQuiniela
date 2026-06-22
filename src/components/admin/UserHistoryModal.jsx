@@ -14,19 +14,11 @@ export default function UserHistoryModal({ user, onClose }) {
   const fetchData = useCallback(() => {
     setLoading(true)
     Promise.all([
-      supabase.from('bets')
-        .select('*, matches(*)')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(50),
-      supabase.from('wallet_transactions')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(50),
+      supabase.rpc('public_admin_get_user_bets', { p_user_id: user.id }),
+      supabase.rpc('public_admin_get_user_transactions', { p_user_id: user.id }),
     ]).then(([betsRes, txRes]) => {
-      if (!betsRes.error) setBets(betsRes.data)
-      if (!txRes.error) setTransactions(txRes.data)
+      if (!betsRes.error && betsRes.data) setBets(betsRes.data)
+      if (!txRes.error && txRes.data) setTransactions(txRes.data)
     }).finally(() => setLoading(false))
   }, [user.id])
 
@@ -104,11 +96,11 @@ export default function UserHistoryModal({ user, onClose }) {
             ) : (
               <div className="divide-y divide-iron-100 dark:divide-iron-700">
                 {bets.map(bet => (
-                  <div key={bet.id} className="p-4 space-y-2 hover:bg-iron-50 dark:hover:bg-iron-750 transition-colors">
+                  <div key={bet.bet_id} className="p-4 space-y-2 hover:bg-iron-50 dark:hover:bg-iron-750 transition-colors">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-iron-900 dark:text-white truncate">
-                          {bet.matches?.equipo_local || '—'} vs {bet.matches?.equipo_visitante || '—'}
+                          {bet.equipo_local || '—'} vs {bet.equipo_visitante || '—'}
                         </p>
                         <p className="text-xs text-iron-500">
                           {getBetTypeLabel(bet.tipo_apuesta)} · {formatDateTime(bet.created_at)}
@@ -131,12 +123,12 @@ export default function UserHistoryModal({ user, onClose }) {
                     {bet.estado === 'pendiente' && (
                       <div className="flex justify-end pt-1">
                         <button
-                          onClick={() => handleVoidBet(bet.id)}
-                          disabled={voiding.has(bet.id)}
+                          onClick={() => handleVoidBet(bet.bet_id)}
+                          disabled={voiding.has(bet.bet_id)}
                           className="flex items-center gap-1.5 text-xs font-semibold text-danger hover:text-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                         >
                           <Trash2 size={14} />
-                          {voiding.has(bet.id) ? 'Anulando…' : 'Anular'}
+                          {voiding.has(bet.bet_id) ? 'Anulando…' : 'Anular'}
                         </button>
                       </div>
                     )}

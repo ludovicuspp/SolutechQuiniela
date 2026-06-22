@@ -47,6 +47,7 @@ const FILES = [
   'fix_admin_panel_functions.sql',
   'fix_auto_resolve_trigger.sql',
   'admin_resolve_match.sql',
+  'fix_admin_history_rpcs.sql',
 ]
 
 const PROJECT_REF = process.env.SUPABASE_PROJECT_REF || ''
