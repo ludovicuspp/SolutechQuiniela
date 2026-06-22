@@ -11,7 +11,7 @@ import SupportFab from '../components/layout/SupportFab'
 
 export default function DashboardPage() {
   const { profile, wallet } = useAuthStore()
-  const { allMatches: matches = [], fetchMatches, getUpcomingMatches, getRecentResults } = useMatchStore()
+  const { allMatches: matches = [], fetchMatches, getUpcomingMatches, getRecentResults, getLiveMatches } = useMatchStore()
   const { myBets, fetchMyBets, getStats, hasBetOnMatch } = useBetStore()
 
   // Refetch al montar (cada visita al dashboard)
@@ -22,6 +22,7 @@ export default function DashboardPage() {
 
   const stats = getStats()
   const todayMatches = getUpcomingMatches()
+  const liveMatches = getLiveMatches()
   const results = getRecentResults()
 
   const statCards = [
@@ -95,9 +96,28 @@ export default function DashboardPage() {
             ))}
           </div>
         </section>
-       )}
+        )}
 
-       {todayMatches.length === 0 && matches.length > 0 && (
+        {liveMatches.length > 0 && (
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-iron-900 dark:text-white flex items-center gap-2">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                </span>
+                En Vivo
+              </h2>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {liveMatches.map(match => (
+                <MatchCard key={match.id} match={match} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {todayMatches.length === 0 && matches.length > 0 && (
          <div className="card text-center py-8">
            <Calendar size={40} className="mx-auto text-iron-300 dark:text-iron-600 mb-3" />
             <h3 className="text-base font-bold text-iron-700 dark:text-iron-300">
