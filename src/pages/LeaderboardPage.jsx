@@ -178,15 +178,7 @@ export default function LeaderboardPage() {
       {/* ✅ CONTENIDO DE CLASIFICACIÓN */}
       {activeTab === 'clasificacion' && (
         <>
-          <div className="card p-4 bg-gradient-to-r from-fifa-green/10 to-primary-50 dark:from-fifa-green/20 dark:to-primary-900/20 border-fifa-green/30 dark:border-fifa-green/40">
-            <p className="text-sm text-iron-700 dark:text-iron-300">
-              <span className="font-bold text-fifa-green dark:text-fifa-green">🏆 Ranking por Puntos Ganados:</span> 
-              El ranking se calcula exclusivamente por los puntos que ganas pronosticando correctamente. 
-              <span className="font-bold text-accent-600 dark:text-accent-300"> Top 5</span> al final del Mundial 🌍 reciben premios oficiales de IronFlex.
-            </p>
-          </div>
-
-          {loading ? (
+                    {loading ? (
             <div className="flex justify-center py-12">
               <div className="w-8 h-8 border-3 border-primary-200 border-t-primary-500 rounded-full animate-spin" />
             </div>
@@ -330,7 +322,7 @@ export default function LeaderboardPage() {
          <div>
            <h2 className="text-2xl font-bold text-iron-900 dark:text-white flex items-center gap-3 mb-6">
              <Trophy size={28} className="text-yellow-500" />
-              🏆 Premios Oficiales IronPlay
+              🏆 Premios Oficiales SolutechQuiniela
            </h2>
 
            {loadingPremios ? (

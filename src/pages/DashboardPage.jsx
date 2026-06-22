@@ -57,7 +57,7 @@ export default function DashboardPage() {
           Hola, {profile?.nombre?.split(' ')[0] || 'Usuario'}!
         </h1>
         <p className="text-iron-500 dark:text-iron-400 mt-1">
-          Bienvenido a IronPlay
+          Bienvenido a SolutechQuiniela
         </p>
       </div>
 
@@ -133,7 +133,7 @@ export default function DashboardPage() {
            </h3>
            <p className="text-iron-500 dark:text-iron-400 mt-2 max-w-md mx-auto">
              Los partidos se cargaran automaticamente cuando comience el torneo.
-             Mientras tanto, tus compras de IronFlex siguen sumando puntos!
+             Mientras tanto, tus compras en Solutech siguen sumando puntos!
            </p>
          </div>
        )}

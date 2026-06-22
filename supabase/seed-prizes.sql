@@ -1,6 +1,6 @@
 -- ============================================
--- Seed: Premios IronBet por Fase
--- IronMundial 2026 - IronFlex Group
+-- Seed: Premios SolutechQuiniela
+-- SolutechQuiniela 2026 - Solutech Group
 -- Run this in Supabase SQL Editor
 -- ============================================
 
@@ -16,11 +16,11 @@ INSERT INTO public.prizes (fase, posicion, titulo, descripcion) VALUES
   '🥇 Camisa Oficial FIFA 2026',
   'Camisa oficial del Mundial FIFA 2026 con tu nombre y número personalizado'),
 ('grupo', 2,
-  '🥈 Kit IronFlex Premium',
-  'Kit completo IronFlex: camiseta, gorra y termo oficial de la marca'),
+  '🥈 Kit Solutech Premium',
+  'Kit completo Solutech: camiseta, gorra y termo oficial de la marca'),
 ('grupo', 3,
-  '🥉 Bono IronFlex $25',
-  'Bono de $25 USD en productos del catálogo IronFlex'),
+  '🥉 Bono Solutech $25',
+  'Bono de $25 USD en productos del catálogo Solutech'),
 
 -- ============================================
 -- OCTAVOS DE FINAL
@@ -32,8 +32,8 @@ INSERT INTO public.prizes (fase, posicion, titulo, descripcion) VALUES
   '🥈 Camisa Oficial FIFA 2026',
   'Camisa oficial del Mundial FIFA 2026 con tu nombre y número personalizado'),
 ('octavos', 3,
-  '🥉 Kit IronFlex Premium',
-  'Kit completo IronFlex: camiseta, gorra y termo oficial de la marca'),
+  '🥉 Kit Solutech Premium',
+  'Kit completo Solutech: camiseta, gorra y termo oficial de la marca'),
 
 -- ============================================
 -- CUARTOS DE FINAL
@@ -68,21 +68,27 @@ INSERT INTO public.prizes (fase, posicion, titulo, descripcion) VALUES
   '🥇 Bono Efectivo $150 USD',
   'Ciento cincuenta dólares en efectivo entregados directamente al ganador'),
 ('tercer_puesto', 2,
-  '🥈 Kit IronFlex Premium + Bono $50',
-  'Kit IronFlex completo más bono de $50 USD en productos'),
+  '🥈 Kit Solutech Premium + Bono $50',
+  'Kit Solutech completo más bono de $50 USD en productos'),
 ('tercer_puesto', 3,
-  '🥉 Kit IronFlex Premium',
-  'Kit completo IronFlex: camiseta, gorra y termo oficial de la marca'),
+  '🥉 Kit Solutech Premium',
+  'Kit completo Solutech: camiseta, gorra y termo oficial de la marca'),
 
 -- ============================================
--- FINAL
+-- FINAL (Ranking Global)
 -- ============================================
 ('final', 1,
-  '🥇 Gran Premio: Bono Efectivo $500 USD',
-  'Quinientos dólares en efectivo — el gran campeón del IronBet 2026'),
+  '💸 1° Lugar',
+  '$100 en efectivo para el campeón del ranking global'),
 ('final', 2,
-  '🥈 Bono Efectivo $250 USD',
-  'Doscientos cincuenta dólares en efectivo entregados al subcampeón'),
+  '🍽️ 2° Lugar',
+  'Cena para dos personas'),
 ('final', 3,
-  '🥉 Bono Efectivo $100 USD',
-  'Cien dólares en efectivo para el tercer lugar del torneo');
+  '🍿 3° Lugar',
+  'Entrada de cine para 2 personas con combo incluido'),
+('final', 4,
+  '🎟️ 4° Lugar',
+  'Entrada de cine'),
+('final', 5,
+  '🎟️ 5° Lugar',
+  'Entrada de cine');

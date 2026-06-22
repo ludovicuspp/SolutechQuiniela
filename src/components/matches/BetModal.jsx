@@ -242,7 +242,7 @@ export default function BetModal({ match, onClose }) {
           {Number(monto) > (wallet?.balance || 0) && (
             <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-xl">
               <AlertCircle size={16} className="text-danger shrink-0" />
-              <p className="text-xs text-danger">Saldo insuficiente. Realiza compras con IronFlex para obtener mas puntos.</p>
+              <p className="text-xs text-danger">Saldo insuficiente. Realiza compras en Solutech para obtener mas puntos.</p>
             </div>
           )}
         </div>

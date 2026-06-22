@@ -1,5 +1,5 @@
 -- ============================================
--- Migración: Fase 2 reglas de negocio IronPlay
+-- Migración: Fase 2 reglas de negocio SolutechQuiniela
 -- Añade columnas tipo_jugada, marcador_local, marcador_visitante a bets
 -- Ejecutar en Supabase SQL Editor
 -- ============================================

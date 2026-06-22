@@ -154,7 +154,7 @@ export default function ProfilePage() {
         <LogOut size={18} /> Cerrar Sesión
       </button>
 
-      <p className="text-xs text-gray-500/50 dark:text-gray-400/50 text-center mt-8 pb-4 font-mono">IronPlay v{appVersion}</p>
+      <p className="text-xs text-gray-500/50 dark:text-gray-400/50 text-center mt-8 pb-4 font-mono">SolutechQuiniela v{appVersion}</p>
 
       {showEditProfileModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">

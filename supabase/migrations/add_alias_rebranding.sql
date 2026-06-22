@@ -1,5 +1,5 @@
 -- ============================================
--- Migración: Alias de usuario + rebranding IronPlay
+-- Migración: Alias de usuario + rebranding SolutechQuiniela
 -- Ejecutar en Supabase SQL Editor
 -- ============================================
 
