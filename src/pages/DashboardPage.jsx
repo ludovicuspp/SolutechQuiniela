@@ -79,25 +79,6 @@ export default function DashboardPage() {
         ))}
       </div>
 
-       {todayMatches.length > 0 && (
-         <section>
-           <div className="flex items-center justify-between mb-4">
-             <h2 className="text-lg font-bold text-iron-900 dark:text-white flex items-center gap-2">
-               <Calendar size={20} className="text-primary-500" />
-                Próximos Partidos
-             </h2>
-            <Link to="/partidos" className="text-sm text-primary-500 hover:text-primary-600 flex items-center gap-1">
-              Ver todos <ArrowRight size={14} />
-            </Link>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {todayMatches.map(match => (
-              <MatchCard key={match.external_id || match.id} match={match} hasBetted={hasBetOnMatch(match.external_id)} />
-            ))}
-          </div>
-        </section>
-        )}
-
         {liveMatches.length > 0 && (
           <section>
             <div className="flex items-center justify-between mb-4">
@@ -115,6 +96,25 @@ export default function DashboardPage() {
               ))}
             </div>
           </section>
+        )}
+
+       {todayMatches.length > 0 && (
+         <section>
+           <div className="flex items-center justify-between mb-4">
+             <h2 className="text-lg font-bold text-iron-900 dark:text-white flex items-center gap-2">
+               <Calendar size={20} className="text-primary-500" />
+                Próximos Partidos
+             </h2>
+            <Link to="/partidos" className="text-sm text-primary-500 hover:text-primary-600 flex items-center gap-1">
+              Ver todos <ArrowRight size={14} />
+            </Link>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {todayMatches.map(match => (
+              <MatchCard key={match.external_id || match.id} match={match} hasBetted={hasBetOnMatch(match.external_id)} />
+            ))}
+          </div>
+        </section>
         )}
 
         {todayMatches.length === 0 && matches.length > 0 && (
