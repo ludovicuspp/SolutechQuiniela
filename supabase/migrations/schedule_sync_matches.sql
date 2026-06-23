@@ -73,8 +73,9 @@ grant execute on function public.cron_sync_matches() to authenticated;
 -- Esto reemplaza el antiguo perform cron.unschedule(...) que era inválido a nivel SQL.
 do $$
 begin
-  -- Eliminar schedule anterior si existe (evita error "event already scheduled")
-  perform cron.unschedule('sync-matches-every-minute');
+  if exists (select 1 from cron.job where jobname = 'sync-matches-every-minute') then
+    perform cron.unschedule('sync-matches-every-minute');
+  end if;
 end;
 $$;
 

@@ -11,12 +11,12 @@ import SupportFab from '../components/layout/SupportFab'
 
 export default function DashboardPage() {
   const { profile, wallet } = useAuthStore()
-  const { allMatches: matches = [], fetchMatches, getUpcomingMatches, getRecentResults, getLiveMatches } = useMatchStore()
+  const { allMatches: matches = [], refetchMatches, getUpcomingMatches, getRecentResults, getLiveMatches } = useMatchStore()
   const { myBets, fetchMyBets, getStats, hasBetOnMatch } = useBetStore()
 
   // Refetch al montar (cada visita al dashboard)
   useEffect(() => {
-    fetchMatches()
+    refetchMatches()
     if (profile?.id) fetchMyBets(profile.id)
   }, [])
 
